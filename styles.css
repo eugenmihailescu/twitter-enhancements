@@ -1,0 +1,19 @@
+.btn-video {
+  position: absolute;
+  min-width: 1rem;
+  min-height: 1rem;
+  right: 1rem;
+  top: 1rem;
+  cursor: pointer;
+  fill: orangered;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.btn-video:hover {
+  opacity: 1;
+}
+
+.blur {
+  filter: blur(2rem);
+}

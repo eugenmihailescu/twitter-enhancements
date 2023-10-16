@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<head>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<html>
+  <head>
+    <title>Options - Element Highlighter</title>
+  </head>
+  <body>
+    <div class="alert alert-warning">
+      Define rules to highlight/blur/remove the elements matching the given
+      patterns. For instance you can hide Ads or any other content you don't
+      want to see.
+    </div>
+    <table id="rules_table">
+      <thead>
+        <tr>
+          <td>Enabled</td>
+          <td>Description</td>
+          <td>Selector</td>
+          <td>Action</td>
+          <td></td>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">
+            <input
+              type="button"
+              id="save_rules"
+              class="save d-none"
+              value="Save rules"
+            />
+          </td>
+          <td>
+            <input type="button" id="add_rule" class="add" value="Add rule" />
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+    <div id="twitter_options">
+      <div>
+        <input type="checkbox" id="allow_twitter_video_download" />
+        <label for="allow_twitter_video_download"
+          >Allow Twitter video download</label
+        >
+      </div>
+    </div>
+    <script src="options.js"></script>
+  </body>
+</html>

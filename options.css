@@ -1,0 +1,85 @@
+table#rules_table,
+div#twitter_options {
+  padding: 0.5rem;
+  border: 1px solid #cccccc;
+  border-radius: 0.3rem;
+
+  width: 100%;
+  background-color: whitesmoke;
+}
+div#twitter_options,
+.alert {
+  padding: 0;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+div#twitter_options > div {
+  padding: 0.5rem;
+}
+
+table#rules_table thead {
+  font-weight: bold;
+}
+table#rules_table thead td:first-child {
+  width: 10%;
+}
+table#rules_table thead td:nth-child(2) {
+  width: 20%;
+}
+table#rules_table thead td:nth-child(3) {
+  width: 50%;
+}
+
+table#rules_table thead td:last-child {
+  width: auto;
+}
+table#rules_table tbody tr {
+  vertical-align: top;
+}
+
+table#rules_table tbody td {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+table#rules_table tbody td:nth-child(4) select {
+  width: 100%;
+}
+input[type="text"],
+textarea {
+  width: 100%;
+}
+
+input[type="button"],
+input[type="checkbox"] {
+  cursor: pointer;
+}
+input[type="button"]:not(.save) {
+  color: white;
+  /* width: 100%; */
+}
+input[type="button"].add {
+  background-color: #4169e1;
+}
+input[type="button"].remove {
+  background-color: #ff4500;
+}
+input[type="button"].add:hover {
+  background-color: #6a8cf3;
+}
+input[type="button"].remove:hover {
+  background-color: #ff8566;
+}
+
+.d-none {
+  display: none;
+}
+
+.alert {
+  border: 1px solid #cccccc;
+  border-radius: 0.3rem;
+  padding: 0.5rem;
+}
+
+.alert-warning {
+  background-color: #ffc10736;
+}
