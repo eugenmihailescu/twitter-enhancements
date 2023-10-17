@@ -77,9 +77,13 @@ function downloadVideo(video) {
 }
 
 function highlightVideo(video) {
-  const { url, id, width, height, segments } = video;
+  const { url, id, prefix, width, height, segments } = video;
 
-  const selector = `video[poster*="\\/amplify_video_thumb\\/${id}\\/"]`;
+  const selector = [
+    `video[poster*="\\/${prefix}\\/${id}\\/"]`,
+    `video[poster*="\\/${prefix}_thumb\\/${id}\\/"]`
+  ].join(", ");
+
   const elements = document.querySelectorAll(selector);
 
   elements.forEach(el => {
@@ -103,23 +107,38 @@ function highlightVideo(video) {
 
 // Function to apply border to the matching elements
 function highlightElements() {
-  rules.forEach(rule => applyRule(rule));
+  if (rules) {
+    rules.forEach(rule => applyRule(rule));
+  }
 }
 
 function highlightVideos() {
   Object.keys(videos).forEach(_id => {
-    const { url, id, width, height, segments } = videos[_id];
+    //const { url, id, prefix, width, height, segments } = videos[_id];
+
     highlightVideo(videos[_id]);
   });
 }
 
 // Callback function to execute when mutations are observed
-function handleMutations(mutationsList, observer) {
+function handleRulesMutations(mutationsList, observer) {
+  highlightElements();
+}
+
+// Callback function to execute when mutations are observed
+function handleVideosMutations(mutationsList, observer) {
   let hasMutation = false;
   for (let mutation of mutationsList) {
     if (mutation.addedNodes) {
       const nodes = Array.from(mutation.addedNodes).filter(node => {
-        return !node.classList || !node.classList.contains("btn-video");
+        if (node.parentElement) {
+          return (
+            (!node.classList || !node.classList.contains("btn-video")) &&
+            node.parentElement.querySelector("video[poster]")
+          );
+        }
+
+        return false;
       });
 
       if (nodes.length) {
@@ -130,7 +149,6 @@ function handleMutations(mutationsList, observer) {
   }
 
   if (hasMutation) {
-    highlightElements();
     highlightVideos();
   }
 }
@@ -139,27 +157,52 @@ function handleMutations(mutationsList, observer) {
 chrome.storage.sync.get("rules", obj => {
   if (Array.isArray(obj.rules)) {
     rules = obj.rules.filter(rule => rule.enabled);
+  }
 
-    // Create an observer instance linked to the callback function
-    const observer = new MutationObserver(handleMutations);
+  // Create an observer instance linked to the callback function
+  const observer = new MutationObserver(handleRulesMutations);
 
-    // Options for the observer (which mutations to observe)
-    const config = { attributes: false, childList: true, subtree: true };
+  // Options for the observer (which mutations to observe)
+  const config = { attributes: false, childList: true, subtree: true };
 
-    // Select the target node for the observer
-    const targetNode = document.body;
+  // Select the target node for the observer
+  const targetNode = document.body;
 
-    // Start observing the target node for configured mutations
-    observer.observe(targetNode, config);
+  // Start observing the target node for configured mutations
+  observer.observe(targetNode, config);
 
+  if (Array.isArray(obj.rules)) {
     // Highlight elements already in the DOM at script start
     highlightElements();
   }
+});
+
+chrome.storage.sync.get("twitter_options", obj => {
+  if (!(obj.twitter_options || {}).enabled) {
+    return;
+  }
+
+  // Create an observer instance linked to the callback function
+  const observer = new MutationObserver(handleVideosMutations);
+
+  // Options for the observer (which mutations to observe)
+  const config = { attributes: false, childList: true, subtree: true };
+
+  // Select the target node for the observer
+  const targetNode = document.body;
+
+  // Start observing the target node for configured mutations
+  observer.observe(targetNode, config);
+
+  // Highlight elements already in the DOM at script start
+  highlightVideos();
 });
 
 // Listening for M3U8 messages from background script
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "network_data_m3u8") {
     videos[request.data.id] = request.data;
+
+    //highlightVideos();
   }
 });

@@ -5,11 +5,20 @@ function sendDataToContentScript(tabId, data) {
 }
 
 function parseM3U8Url(url) {
-  const regex = /.*\/amplify_video\/([^\/]+)\/.*\/(\d+x\d+)\/.*/g;
+  // https://video.twimg.com/ext_tw_video/1686394452351533056/pu/pl/480x270/uQN7OTH1DHfFEy09.m3u8?container=fmp4
+  const regex = [
+    /.*\/(amplify_video|ext_tw_video)\/([^\/]+)\/.*\/(\d+x\d+)\/.*/
+  ];
 
-  const [id, width, height] = url.replace(regex, "$1x$2").split("x");
+  const re = regex.find(re => re.test(url));
+  if (!re) {
+    return null;
+  } else {
+    const [prefix, parts] = url.replace(re, "$1:$2x$3").split(":");
+    const [id, width, height] = parts.split("x");
 
-  return { id, width: +width, height: +height };
+    return { id, prefix, width: +width, height: +height };
+  }
 }
 
 function fetchM3U8(url) {
@@ -66,11 +75,15 @@ function handleBeforeRequest(details) {
     const parsedData = parseM3U8(m3u8Content);
 
     if (parsedData.segments.length) {
-      sendDataToContentScript(details.tabId, {
-        ...parseM3U8Url(details.url),
-        ...parsedData,
-        url: details.url
-      });
+      const m3u8Props = parseM3U8Url(details.url);
+
+      if (m3u8Props) {
+        sendDataToContentScript(details.tabId, {
+          ...m3u8Props,
+          ...parsedData,
+          url: details.url
+        });
+      }
     }
   });
 }
@@ -80,8 +93,7 @@ chrome.webRequest.onBeforeRequest.addListener(handleBeforeRequest, {
 });
 
 chrome.storage.sync.get("twitter_options", obj => {
-  twitter_options.enabled = obj.twitter_options.enabled;
-  console.log(twitter_options);
+  twitter_options.enabled = (obj.twitter_options || {}).enabled;
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
