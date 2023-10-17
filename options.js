@@ -150,10 +150,8 @@ function loadOptions() {
   });
 
   chrome.storage.sync.get("twitter_options", obj => {
-    console.log(obj, Boolean(obj.twitter_options.enabled));
-
     document.getElementById("allow_twitter_video_download").checked = Boolean(
-      obj.twitter_options.enabled
+      (obj.twitter_options || {}).enabled
     );
   });
 
