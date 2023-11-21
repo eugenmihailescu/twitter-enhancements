@@ -1,21 +1,90 @@
+import "./styles.css";
+
 const TWITTER_DOWNLOAD_SERVER = "https://video.twimg.com";
 const videos = {};
+const summary = {};
 let rules;
+
+/**
+ * @description Calculates the hash value for the given input string
+ * @param {string} str - The input string
+ * @returns {number} Returns the output hash code value
+ * @see lsbolagen-front-nodejs/src/lib/helpers/string.js
+ */
+function hashValue(str) {
+  let hash = 0;
+
+  for (let i = 0; i < str.length; i += 1) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer just by running `A` vs `A`
+    //hash |= 0; // Convert to 32bit integer, equivalent as purpose with the above
+  }
+
+  return hash;
+}
+
+function getXPath(element) {
+  if (element.id !== "") {
+    return 'id("' + element.id + '")';
+  }
+  if (element === document.body) {
+    return element.tagName;
+  }
+
+  var ix = 0;
+  var siblings = element.parentNode.childNodes;
+  for (var i = 0; i < siblings.length; i++) {
+    var sibling = siblings[i];
+    if (sibling === element) {
+      return (
+        getXPath(element.parentNode) +
+        "/" +
+        element.tagName +
+        "[" +
+        (ix + 1) +
+        "]"
+      );
+    }
+    if (sibling.nodeType === 1 && sibling.tagName === element.tagName) {
+      ix++;
+    }
+  }
+}
+
+function updateIcon() {
+  const value = Object.keys(summary).reduce(
+    (carry, key) => carry + summary[key],
+    0
+  );
+
+  const badge_options = { type: "remove", value: `${value}` };
+
+  // Sending a message to the background script
+  chrome.runtime.sendMessage({
+    command: "updateBadge",
+    badge_options
+  });
+}
 
 function applyRule({ selector, action, style }) {
   const elements = document.querySelectorAll(selector);
 
   elements.forEach(el => {
+    const path = hashValue(getXPath(el));
+
     if ("style" === action && style) {
       Object.keys(style).forEach(key => {
         el.style[key] = style[key];
+        summary[path] = 1;
       });
     } else if ("remove" === action) {
       if (el.parentNode) {
         el.parentNode.removeChild(el);
+        summary[path] = 1;
       }
     } else if ("blur" === action) {
       el.classList.add("blur");
+      summary[path] = 1;
     }
   });
 }
@@ -109,6 +178,8 @@ function highlightVideo(video) {
 function highlightElements() {
   if (rules) {
     rules.forEach(rule => applyRule(rule));
+
+    updateIcon();
   }
 }
 

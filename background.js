@@ -1,5 +1,12 @@
 let twitter_options = { enabled: false };
 
+function updateIconBadge({ type, value }) {
+  const color = [250, 128, 114, 255];
+
+  chrome.browserAction.setBadgeText({ text: value });
+  chrome.browserAction.setBadgeBackgroundColor({ color });
+}
+
 function sendDataToContentScript(tabId, data) {
   chrome.tabs.sendMessage(tabId, { message: "network_data_m3u8", data: data });
 }
@@ -101,5 +108,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.twitter_options) {
       twitter_options.enabled = request.twitter_options.enabled;
     }
+  } else if (request.command === "updateBadge") {
+    updateIconBadge(request.badge_options);
   }
 });
