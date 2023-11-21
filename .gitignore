@@ -1,2 +1,5 @@
 .git
 .history
+node_modules
+dist
+package-lock.json
