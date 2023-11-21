@@ -15,7 +15,7 @@
     ],
     "browser_action": {
         "default_icon": "icons/icon.png",
-        "default_title": "Highlight Elements"
+        "default_title": "Twitter obfuscated Ads"
     },
     "content_scripts": [
         {
@@ -26,7 +26,7 @@
                 "content.js"
             ],
             "css": [
-                "styles.css"
+                "content.css"
             ]
         }
     ],

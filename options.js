@@ -1,3 +1,8 @@
+import "./options.css";
+
+// Twitter Ads selector:
+// section div[data-testid="cellInnerDiv"] > div > div > div[data-testid="placementTracking"]
+
 const defaultStyle = {
   borderWidth: "0.25rem",
   borderColor: "red",
